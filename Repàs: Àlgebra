@@ -1,0 +1,42 @@
+--Qüestió 1--
+A=empleats(num_empl = 2)
+B=A[num_empl, num_dpt, num_proj]
+C=B{num_dpt->num_dpto, num_proj->num_proje}
+D=C[num_dpto=num_dpt]departaments
+E=D[num_proje=num_proj]projectes
+F=E[nom_dpt, nom_proj]
+
+--Qüestió 2--
+A=empleats[num_dpt, ciutat_empl]
+B=A{num_dpt->num_dpto, ciutat_empl->ciudad_empl}
+C=empleats[num_dpt=num_dpto, ciutat_empl!=ciudad_empl]B
+D=C*departaments
+E=D[num_dpt, nom_dpt]
+
+--Qüestió 3--
+A=empleats(ciutat_empl != 'MADRID')
+B=A[num_dpt]
+C=empleats[num_dpt]
+D=C-B
+E=D*departaments
+F=E[num_dpt, nom_dpt]
+
+--Qüestió 4--
+A=empleats(sou > 200000)
+B=A[num_dpt]
+C=B*departaments
+D=C(ciutat_dpt != 'MADRID')
+E=C-D
+F=E[num_dpt, nom_dpt]
+
+--Qüestió 5--
+A=empleats[num_proj]
+B=projectes*A
+C=projectes-B
+D=C[nom_proj, num_proj]
+
+--Qüestió 6--
+A=departaments[num_dpt, ciutat_dpt]
+B=A{ciutat_dpt->ciutat_empl}
+C=B*empleats
+D=C[nom_empl, num_empl]
