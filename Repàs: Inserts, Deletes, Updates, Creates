@@ -1,0 +1,78 @@
+--Qüestió 1--
+update projectes p
+set pressupost = pressupost + 500000
+where exists (select * 
+              from empleats e, departaments d 
+              where p.num_proj = e.num_proj and e.num_dpt = d.num_dpt and d.ciutat_dpt = 'BARCELONA')
+
+--Qüestió 2--
+insert into cost_ciutat
+(select d.ciutat_dpt, sum(e.sou) from departaments d, empleats e where d.num_dpt = e.num_dpt group by d.ciutat_dpt)
+
+--Qüestió 3--
+insert into professors
+values(111, null, null, 100);
+
+insert into assignacions
+values(111, 'C1', 119, 0, null);
+
+--Qüestió 4--
+insert into professors
+values(111, null, null, 100);
+
+insert into despatxos
+values('C1', 119, 20);
+
+insert into despatxos
+values('C1', 120, 20);
+
+insert into assignacions
+values(111, 'C1', 119, 60, null);
+
+insert into assignacions
+values(111, 'C1', 119, 70, null);
+
+insert into assignacions
+values(111, 'C1', 120, 70, null);
+
+--Qüestió 5--
+create table FRANGES_HORARIES(
+	INSTANT_INICI integer,
+	INSTANT_FI integer,
+	NUM_EMPL integer,
+	primary key (INSTANT_INICI, INSTANT_FI, NUM_EMPL),
+	foreign key (NUM_EMPL) references empleats,
+	check (INSTANT_FI > INSTANT_INICI + 180));
+	
+create table TASQUES_REALITZADES(
+	NUM_TASCA integer,
+	INSTANT_INICI integer not null,
+	INSTANT_FI integer not null,
+	NUM_EMPL integer not null,
+	DESCRIPCIO char(50) not null,
+	primary key (NUM_TASCA),
+	foreign key (INSTANT_INICI, INSTANT_FI, NUM_EMPL) references FRANGES_HORARIES);
+
+--Qüestió 6--
+create table VENDES(
+	NUM_VENDA integer,
+	NUM_EMPL integer not null,
+	CLIENT char(30),
+	primary key (NUM_VENDA),
+	foreign key (NUM_EMPL) references empleats,
+	unique (NUM_EMPL, CLIENT));
+	
+create table PRODUCTES_VENUTS(
+	NUM_VENDA integer,
+	PRODUCTE char(20),
+	QUANTITAT integer not null default 1,
+	IMPORT integer,
+	primary key (NUM_VENDA, PRODUCTE),
+	foreign key (NUM_VENDA) references VENDES);
+
+--Qüestió 7--
+insert into empleats
+values(1, null, null, null, null, null);
+
+insert into empleats
+values(1, null, null, null, null, null);
