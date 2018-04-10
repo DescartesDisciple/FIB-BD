@@ -1,0 +1,33 @@
+--Qüestió 1--
+select d.num_dpt, d.nom_dpt
+from departaments d
+where 0 = (select count(*) from empleats e where d.num_dpt = e.num_dpt and e.ciutat_empl = 'MADRID')
+
+--Qüestió 2--
+select distinct e.ciutat_empl
+from empleats e
+where not exists (select * from departaments d where d.ciutat_dpt = e.ciutat_empl)
+
+--Qüestió 3--
+select d.num_dpt, d.nom_dpt
+from departaments d, empleats e
+where d.num_dpt = e.num_dpt
+group by d.num_dpt
+having count(distinct e.ciutat_empl) >= 2
+
+--Qüestió 4--
+create table VENDES
+	(NUM_VENDA integer,
+	NUM_EMPL integer not null, 
+	CLIENT char(30),
+	unique (NUM_EMPL, CLIENT),
+	primary key (NUM_VENDA),
+	foreign key (NUM_EMPL) references empleats);
+
+create table PRODUCTES_VENUTS 
+	(NUM_VENDA INTEGER, 
+	PRODUCTE CHAR(20),
+	QUANTITAT INTEGER not null default 1, 
+	IMPORT INTEGER,
+	primary key (NUM_VENDA, producte),
+	foreign key (NUM_VENDA) references VENDES);
