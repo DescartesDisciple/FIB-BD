@@ -1,0 +1,15 @@
+--Qüestió 1--
+select distinct d.num_dpt, d.nom_dpt 
+from departaments d, empleats e
+where (d.ciutat_dpt in ('MADRID') and (e.sou > 200000) and (d.num_dpt = e.num_dpt))
+
+--Qüestió 2--
+select d.nom_dpt, p.nom_proj
+from departaments d, projectes p, empleats e
+where (e.num_proj = p.num_proj and e.num_dpt = d.num_dpt and e.num_empl = 2)
+
+--Qüestió 3--
+select distinct d.num_dpt, d.nom_dpt, AVG(e.sou)
+from departaments d, empleats e
+where e.num_dpt = d.num_dpt and d.ciutat_dpt = 'MADRID'
+group by d.num_dpt
