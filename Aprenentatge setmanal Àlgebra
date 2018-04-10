@@ -1,0 +1,20 @@
+--Qüestió 1--
+A=empleats(sou > 200000)
+B=A[num_dpt]
+C=departaments(ciutat_dpt = 'MADRID')
+D=C[num_dpt, nom_dpt]
+R=B*D
+
+--Qüestió 2--
+A=empleats[num_proj]
+B=projectes{num_proj->num_projecte}
+C=A[num_proj=num_projecte]B
+D=C[num_proj,nom_proj,producte,pressupost]
+E=projectes-D
+R=E[nom_proj, num_proj]
+
+--Qüestió 3--
+A=departaments[num_dpt,ciutat_dpt]
+B=A{num_dpt->num_departament}
+C=B[num_departament*num_dpt,ciutat_dpt*ciutat_empl]empleats
+R=C[nom_empl,num_empl]
