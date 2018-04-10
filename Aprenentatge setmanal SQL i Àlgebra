@@ -1,0 +1,25 @@
+--Qüestió 1--
+select e.num_empl, e.nom_empl
+from empleats e, departaments d
+where e.num_dpt = d.num_dpt and e.ciutat_empl=d.ciutat_dpt
+
+--Qüestió 2--
+insert into departaments (num_dpt)
+values (1);
+
+insert into projectes (num_proj)
+values(1);
+
+insert into empleats (num_empl)
+values(1);
+
+insert into empleats (num_empl)
+values(1);
+
+--Qüestió 3--
+A=empleats(num_empl = 3)
+B=empleats - A
+C=A[sou]
+D=C{sou->sueldo}
+E=B[sou>sueldo]D
+F=E[nom_empl]
