@@ -1,0 +1,35 @@
+--Qüestió 1--
+A = empleats{num_dpt -> nd,num_proj -> np}
+B = A(num_empl=2)
+C = B[np=num_proj]projectes
+D = C[nd=num_dpt]departaments
+E = D[nom_dpt,nom_proj]
+
+--Qüestió 2--
+A = empleats[num_dpt,ciutat_empl]
+B = A{num_dpt->nd,ciutat_empl->ce}
+C = A[num_dpt=nd, ciutat_empl<>ce]B
+X = departaments{num_dpt->ndpt}
+D = C[num_dpt=ndpt]X
+E = D[num_dpt,nom_dpt]
+
+--Qüestió 3--
+A=empleats(ciutat_empl <> 'MADRID')
+B=A[num_dpt]
+C=empleats[num_dpt]
+D=C-B
+E=D{num_dpt->ndpt}
+F=E[ndpt=num_dpt]departaments
+G=F[num_dpt, nom_dpt]
+
+--Qüestió 4--
+A=professors(sou <> 100000)
+B=A[dni]
+C=B{dni->dnii}
+D=C[dnii=dni]assignacions   
+E=D[numero, modul]
+F=assignacions[numero, modul]
+G=F-E
+H=G{numero->numeroo, modul->moduloo}
+I=H[numeroo=numero, moduloo=modul]assignacions
+J=I[dni, modul, numero, instantInici]
