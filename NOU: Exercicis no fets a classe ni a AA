@@ -1,0 +1,60 @@
+--Qüestió 1--
+delete from departaments 
+where not exists (select * 
+		from empleats e 
+		where departaments.num_dpt = e.num_dpt);
+
+--Qüestió 2--
+insert into projectes
+values(1, null,'LOMO', null);
+
+insert into projectes
+values(2, null,'QUESO', null);
+
+insert into departaments
+values(1, 'ATUN', null, null, 'BARCELONA');
+
+insert into departaments
+values(2, 'QUESO', null, null, 'MADRID');
+
+insert into empleats
+values(1, 'MATEO', null, null, 1, 1);
+
+insert into empleats
+values(2, 'MARCOS', null, null, 1, 2);
+
+insert into empleats
+values(3, 'LUCAS', null, null, 2, 1);
+
+insert into empleats
+values(4, 'JUAN', null, null, 2, 2);
+
+--Qüestió 3--
+create table proves(
+	num_met integer,
+	num_mal integer,
+	instant_visita integer,
+	num_prova integer check(num_prova between 1 and 100),
+	prioritat char(5) not null,
+	primary key  (num_met, num_mal, instant_visita, num_prova),
+	foreign key  (num_met, num_mal, instant_visita) references visites,
+	check (prioritat in ('URGNT', 'REGLR', 'BAIXA')));
+
+--Qüestió 4--
+A=empleats[num_empl, ciutat_empl, num_dpt]
+B=A{num_empl->nemp, ciutat_empl->cemp, num_dpt->ndpt}
+C=empleats[num_empl != nemp, ciutat_empl = cemp, num_dpt = ndpt]B
+D=C[num_empl, nom_empl, sou, ciutat_empl, num_dpt, num_proj]
+E=D*departaments
+
+--Qüestió 5--
+select e.num_empl, e.nom_empl
+from empleats e, departaments d
+where e.num_dpt = d.num_dpt and e.ciutat_empl = d.ciutat_dpt
+
+--Qüestió 6--
+A=empleats(num_empl = 3)
+B=A[sou]
+C=B{sou->sueldo}
+D=empleats[sou > sueldo]C
+E=D[nom_empl]
