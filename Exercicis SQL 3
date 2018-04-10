@@ -1,0 +1,27 @@
+--Qüestió 1--
+select p.nomprof
+from professors p
+where (p.sou > 2500 and p.telefon is not null) or (p.telefon is null and not exists (select *  
+                                                                                    from assignacions a, despatxos d
+                                                                                    where p.dni = a.dni and a.modul = d.modul and a.numero = d.numero and d.superficie < 20 ))
+
+--Qüestió 2--
+select p.dni, p.nomprof, MAX(a.instantfi)
+from professors p, assignacions a, despatxos d
+where p.dni = a.dni and a.instantfi is not null and a.numero = d.numero and a.modul = d.modul and d.superficie > 15 and p.sou <= (select avg(p1.sou)
+                                                                                                                                  from professors p1)
+group by p.dni
+
+--Qüestió 3--
+insert into professors values('111', 'jesus', 123, 3000);
+insert into despatxos(modul, numero, superficie) values('1', '120', 30);
+insert into assignacions(dni, modul, numero, instantfi, instantinici) values('111', '1', '120', 0, 50);
+insert into assignacions(dni, modul, numero, instantfi, instantinici) values('111', '2', '240', 100, 200);
+
+--Qüestió 4--
+insert into professors (dni, sou) values('111', 3000);
+insert into despatxos(modul, numero, superficie) values('1', '120', 30);
+insert into despatxos(modul, numero, superficie) values('2', '240', 30);
+insert into assignacions(dni, modul, numero, instantfi, instantinici) values('111', '1', '120', 0, 60);
+insert into assignacions(dni, modul, numero, instantfi, instantinici) values('111', '2', '240', 0, 60);
+insert into assignacions(dni, modul, numero, instantfi, instantinici) values('111', '2', '240', 100, 200);
