@@ -1,0 +1,38 @@
+--Qüestió 1--
+select d.num_dpt, d.nom_dpt
+from departaments d, empleats e
+where e.num_dpt = d.num_dpt and  not exists (select *
+									from empleats e
+									where e.num_dpt = d.num_dpt and e.ciutat_empl not in ('MADRID'))	
+group by d.num_dpt
+
+--Qüestió 2--
+select d.num_dpt, d.nom_dpt
+from departaments d, empleats e
+where d.num_dpt = e.num_dpt
+group by d.num_dpt
+having count(e.ciutat_empl) > count(distinct e.ciutat_empl)
+
+--Qüestió 3--
+insert into cost_ciutat
+	(select distinct d.ciutat_dpt, sum(e.sou)
+	from departaments d, empleats e
+	where e.num_dpt = d.num_dpt
+	group by d.ciutat_dpt)
+
+--Qüestió 4--
+CREATE TABLE FRANGES_HORARIES 
+         (INSTANT_INICI INTEGER,
+	INSTANT_FI INTEGER check (INSTANT_FI > INSTANT_INICI+180),
+	NUM_EMPL INTEGER not null,
+	primary key (INSTANT_INICI, INSTANT_FI, NUM_EMPL),
+	foreign key (NUM_EMPL) references empleats);
+
+CREATE TABLE TASQUES_REALITZADES 
+         (NUM_TASCA INTEGER,
+	INSTANT_INICI INTEGER not null,
+	INSTANT_FI INTEGER not null,
+	NUM_EMPL INTEGER not null,
+	DESCRIPCIO CHAR(50) not null,
+	primary key (NUM_TASCA),
+	FOREIGN KEY (INSTANT_INICI, INSTANT_FI, NUM_EMPL) REFERENCES FRANGES_HORARIES);
