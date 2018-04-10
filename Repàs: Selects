@@ -1,0 +1,70 @@
+--Qüestió 1--
+select p.dni, p.nomprof, max(a.instantfi)
+from professors p, assignacions a, despatxos d
+where p.sou <= (select avg(sou) from professors) and p.dni = a.dni and 
+a.instantfi is not null and a.numero = d.numero and a.modul = d.modul and d.superficie > 15
+group by p.dni
+
+--Qüestió 2--
+select p.nomprof
+from professors p
+where (p.telefon is not null and p.sou > 2500) or (p.telefon is null and not exists (select * 
+                                                                                      from assignacions a, despatxos d 
+                                                                                      where p.dni = a.dni and a.numero = d.numero and a.modul = d.modul and d.superficie < 20))
+
+--Qüestió 3--
+select distinct d.num_dpt, d.nom_dpt
+from departaments d, empleats e
+where d.num_dpt = e.num_dpt
+group by d.num_dpt, e.ciutat_empl
+having  2 <= count(*)
+
+--Qüestió 4--
+select d.num_dpt, d.nom_dpt
+from departaments d, empleats e
+where e.num_dpt = d.num_dpt and  not exists (select * 
+                                             from empleats e
+                                             where e.num_dpt = d.num_dpt and e.ciutat_empl not in ('MADRID'))	
+group by d.num_dpt
+
+--Qüestió 5--
+select d.num_dpt, d.nom_dpt
+from departaments d, empleats e
+where d.num_dpt = e.num_dpt
+group by d.num_dpt
+having count(distinct e.ciutat_empl) >= 2
+
+--Qüestió 6--
+select distinct e.ciutat_empl
+from empleats e
+where not exists (select * from departaments d where e.ciutat_empl = d.ciutat_dpt)
+
+--Qüestió 7--
+select d.num_dpt, d.nom_dpt
+from departaments d
+where not exists (select * from empleats e where d.num_dpt = e.num_dpt and e.ciutat_empl = 'MADRID')
+
+--Qüestió 8--
+select p.num_proj, p.nom_proj
+from projectes p, empleats e
+where p.num_proj = e.num_proj
+group by p.num_proj
+having count(e.num_empl) >= 2
+order by p.num_proj desc
+
+--Qüestió 9--
+select distinct nom_empl
+from empleats
+where sou = (select max(sou) from empleats)
+order by nom_empl desc
+
+--Qüestió 10--
+select d.num_dpt, d.nom_dpt, avg(e.sou)
+from departaments d, empleats e
+where d.ciutat_dpt = 'MADRID' and d.num_dpt = e.num_dpt
+group by d.num_dpt
+
+--Qüestió 11--
+select distinct d.num_dpt, d.nom_dpt
+from departaments d, empleats e
+where d.ciutat_dpt = 'MADRID' and d.num_dpt = e.num_dpt and e.sou > 200000
