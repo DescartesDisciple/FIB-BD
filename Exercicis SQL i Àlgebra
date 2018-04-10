@@ -1,0 +1,53 @@
+--Qüestió 1--
+select modul, AVG(a.instantfi - instantinici) as MITJANA_DURADA
+from assignacions a
+where a.instantfi is not null
+group by modul
+order by modul ASC
+
+--Qüestió 2--
+select d.num_dpt, d.nom_dpt, d.ciutat_dpt
+from departaments d, empleats e
+where d.num_dpt = e.num_dpt
+group by d.num_dpt
+having count (distinct e.num_proj) = 1
+order by d.num_dpt, d.nom_dpt, d.ciutat_dpt asc
+
+--Qüestió 3--
+create table presentacioTFG
+	(idEstudiant char(100), 
+	titolTFG char(100) unique not null, 
+	dniDirector char(50) not null,
+	dniPresident char(50) not null,
+	dniVocal char(50) not null,
+	instantPresentacio integer not null, 
+	nota integer null check(0<=nota) check(nota <= 10),
+	primary key (idEstudiant),
+	foreign key (dniDirector) references professors (dni),
+	foreign key (dniPresident) references professors (dni),
+	foreign key (dniVocal) references professors (dni),
+	check (dniPresident != dniVocal),
+	check (dniPresident != dniDirector),
+	check (dniVocal != dniDirector));
+
+--Qüestió 4--
+A=professors(sou > 2500) --primera condicion
+B=despatxos(superficie >= 20) --despachos que no cumplen la condicion sobre despachos
+C=B[modul,numero] --proyección sobre B
+D=C{modul->moduloo, numero->numeroo} --cambio de nombre sobre C
+E=assignacions[numero=numeroo,modul=moduloo]D --join de asignaciones
+F=E[dni,modul,numero, instantinici, instantfi] --proyección sobre E
+G=assignacions-F --assignaciones que no cumplen la condicion
+H=G[dni] --dni de G
+I=professors*H --cambio de nombre
+J=professors-I
+K=J_u_A
+L=K[nomprof]
+
+--Qüestió 5--
+insert into cost_ciutat
+(select distinct d.ciutat_dpt, 0
+from departaments d
+where not exists (select *
+                  from empleats e, departaments d1
+                  where d.ciutat_dpt = d1.ciutat_dpt and d1.num_dpt = e.num_dpt))
