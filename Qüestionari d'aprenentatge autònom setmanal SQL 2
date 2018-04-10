@@ -1,0 +1,18 @@
+--Qüestió 1--
+select distinct e.nom_empl
+from empleats e
+where e.sou = (select MAX(e1.sou) from empleats e1)
+order by e.nom_empl desc
+
+--Qüestió 2--
+select p.num_proj, p.nom_proj
+from projectes p
+where 2 <= (select count(*) from empleats e where e.num_proj = p.num_proj)
+order by p.num_proj desc
+
+--Qüestió 3--
+update projectes
+set pressupost = pressupost + 500000
+where 1 <= (select count(*) 
+            from empleats e, departaments d 
+            where e.num_proj = projectes.num_proj and e.num_dpt = d.num_dpt and d.ciutat_dpt in ('BARCELONA'))
