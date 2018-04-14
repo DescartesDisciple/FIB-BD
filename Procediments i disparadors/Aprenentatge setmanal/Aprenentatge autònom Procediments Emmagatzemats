@@ -1,0 +1,31 @@
+create TYPE empl AS
+( nom char(30),
+  sou integer);
+
+CREATE OR REPLACE FUNCTION empl_departament(numdept integer) RETURNS setof empl AS $$
+DECLARE 
+  e empl;
+  missatge varchar(50);
+  quants integer;
+
+BEGIN
+
+  quants = 0;
+  FOR e IN SELECT nom_empl, sou FROM empleats em WHERE em.num_dpt = numdept and em.ciutat_empl = 'SITGES'
+     LOOP
+     quants=quants+1;
+     RETURN NEXT e;
+     END LOOP;
+
+	if (quants = 0) then select texte into missatge from missatgesexcepcions where num=1; 
+				raise exception '%', missatge;
+	end if;
+  RETURN;
+
+  exception
+	when raise_exception then raise exception '%', SQLERRM;
+	when others then select texte into missatge from missatgesexcepcions where num=2;
+					raise exception '%', missatge;
+	
+END;
+$$LANGUAGE plpgsql;
