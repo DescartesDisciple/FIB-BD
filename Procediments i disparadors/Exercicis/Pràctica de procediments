@@ -1,0 +1,41 @@
+create type Tvendas as(
+		dnitreb char(8),
+		nomtreb char(30),
+		soutreb real, 
+		plussoutreb real,
+		matricula char(10));
+
+create or replace function llistat_treb (dni1 char(8), dni2 char(8))returns setof Tvendas as $$
+declare
+dato Tvendas;
+missatge varchar(50);
+
+begin
+	for dato in select t.dni, t.nom, t.sou_base, t.plus
+					from treballadors t 
+					where (t.dni between dni1 and dni2) 
+	loop 
+					
+					if ((select count(*) from lloguers_actius ll where dato.dnitreb = ll.dni)  >= 5) then
+					for dato.matricula in (select lla.matricula from lloguers_actius lla where lla.dni = dato.dnitreb)
+					loop			
+						return next dato;
+					end loop;
+					else dato.matricula := null; return next dato;
+					end if;
+    end loop;
+
+	if not found then SELECT texte INTO missatge FROM missatgesexcepcions WHERE num=1; 
+				raise exception '%',missatge;
+
+	end if;
+
+	return;
+
+	exception
+		when raise_exception then raise exception '%', SQLERRM;
+		when others then select texte into missatge from missatgesexcepcions where num=2;
+					raise exception '%', missatge;
+
+end;
+$$LANGUAGE plpgsql;
