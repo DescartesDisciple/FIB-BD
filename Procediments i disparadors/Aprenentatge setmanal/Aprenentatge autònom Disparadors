@@ -1,0 +1,11 @@
+CREATE or replace FUNCTION auditoria() RETURNS trigger AS $$
+DECLARE
+us char(30);
+BEGIN
+      us := (select usuari from usuari_actual); 
+      NEW.usuari = us;
+      RETURN NEW;
+END;
+$$LANGUAGE plpgsql;
+
+CREATE TRIGGER ex172 BEFORE INSERT ON treballadors FOR EACH ROW EXECUTE PROCEDURE auditoria();
