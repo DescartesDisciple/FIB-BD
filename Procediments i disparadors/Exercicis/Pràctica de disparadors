@@ -1,0 +1,94 @@
+--QÜESTIÓ 1--
+
+create or replace function error() returns trigger as $$
+declare
+missatge varchar(100);
+begin
+		if (OLD.nempl = 123) then
+			
+			SELECT texte INTO missatge FROM missatgesexcepcions WHERE num=1; 
+						raise exception '%',missatge;
+			return null;
+		
+		elsif (TG_OP = 'DELETE' ) then  return old;
+		else return NEW;
+		end if;
+		exception
+		when raise_exception then raise exception '%', SQLERRM;
+	
+end; 
+$$ language plpgsql;
+
+create trigger esborrat before delete on empleats for each row
+execute procedure error();
+
+create trigger actualitzacio before update of nempl on empleats for each row
+execute procedure error();
+
+--QÜESTIÓ 2--
+
+create or replace function error() returns trigger as $$
+declare
+missatge varchar(50);
+begin
+		if (exists (select dia from dia where dia = 'dijous')) then
+			
+			SELECT texte INTO missatge FROM missatgesexcepcions WHERE num=1; 
+						raise exception '%',missatge;
+			return null;
+		
+		
+		else return OLD;
+		end if;
+		exception
+		when raise_exception then raise exception '%', SQLERRM;
+	
+end; 
+$$ language plpgsql;
+
+create trigger esborratt before delete on empleats for each statement
+execute procedure error();
+
+--QÜESTIÓ 3--
+
+create or replace function error1() returns trigger as $$
+declare
+begin
+		DELETE From temp;
+		INSERT INTO temp(x,y) select sum(salari),0 from empleats;
+return null;
+
+	
+end; 
+$$ language plpgsql;
+
+create or replace function error2() returns trigger as $$
+declare
+missatge varchar(50);
+oldqtt integer default 0;
+suma_incr integer default 0;
+
+begin
+		
+	UPDATE temp SET y=y+(OLD.salari);
+	SELECT x,y INTO oldqtt,suma_incr FROM temp;
+	IF (oldqtt-suma_incr < suma_incr) THEN
+		SELECT texte INTO missatge FROM missatgesexcepcions WHERE num=1; 
+						raise exception '%',missatge;
+		return null;
+
+
+		else return OLD;
+		end if;
+		exception
+		when raise_exception then raise exception '%', SQLERRM;
+	
+end; 
+$$ language plpgsql;
+
+
+create trigger esborrat before delete on empleats for each statement
+execute procedure error1();
+
+create trigger esborratt before delete on empleats for each row
+execute procedure error2();
