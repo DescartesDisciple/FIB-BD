@@ -29,3 +29,33 @@ EXCEPTION
 
 END;
 $$LANGUAGE plpgsql;
+
+
+--Qüestió 2--
+
+CREATE or replace FUNCTION assercio() RETURNS trigger AS $$
+DECLARE
+   missatge varchar(100);
+  
+begin
+	
+	if (not exists(select * from empleats2 where ciutat2 = new.ciutat1)) then
+	
+		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num=1;
+			RAISE EXCEPTION '%',missatge;
+		
+		if(TG_OP = 'UPDATE') then return old;
+		else return null;
+		end if;
+	
+	end if;
+	
+	return new;
+exception
+
+	when raise_exception then raise exception '%', SQLERRM;
+	
+END;
+$$LANGUAGE plpgsql;
+
+CREATE TRIGGER exem2 BEFORE INSERT or update of ciutat1 ON empleats1 FOR EACH ROW EXECUTE PROCEDURE assercio();
