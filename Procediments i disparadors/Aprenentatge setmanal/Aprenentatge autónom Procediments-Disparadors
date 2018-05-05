@@ -1,0 +1,31 @@
+--Qüestió 1--
+
+CREATE OR REPLACE FUNCTION eliminar_dept(numdept integer) RETURNS void AS $$
+DECLARE 
+   missatge varchar(50);
+ 
+BEGIN
+
+	if (exists (select * from empleats where num_dpt = numdept)) then
+	
+		select texte into missatge from missatgesexcepcions where num=1;
+    			raise exception '%',missatge;
+    	else
+	
+     	DELETE FROM departaments WHERE num_dpt = numdept;
+
+     	IF NOT FOUND THEN
+	   		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num=2; 
+           		RAISE EXCEPTION '%',missatge;   		
+    END if;
+   end if;
+
+EXCEPTION
+   WHEN raise_exception THEN
+           RAISE EXCEPTION '%',SQLERRM;
+   WHEN OTHERS THEN
+           SELECT texte INTO missatge FROM missatgesExcepcions WHERE num=3; 
+           RAISE EXCEPTION '%',missatge;
+
+END;
+$$LANGUAGE plpgsql;
