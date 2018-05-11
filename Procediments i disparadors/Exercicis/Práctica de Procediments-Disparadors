@@ -1,0 +1,56 @@
+--QÜESTIÓ 1--
+
+create or replace function compensar() returns trigger as $$
+declare
+
+begin
+
+	
+	delete from empleats1 where ciutat1 = old.ciutat2 and 
+		not exists(select * from empleats2 where ciutat2 = old.ciutat2);
+
+	return null;
+
+end; 
+$$ language plpgsql;
+
+create trigger borrar3 after delete or update of ciutat2 on empleats2 for each row
+execute procedure compensar();
+
+--QÜESTIÓ 2--
+
+create or replace function assignar_individual (ssoci char(10), cclub char(10)) returns void as $$
+declare
+missatge varchar(50);
+suma integer;
+homes integer;
+dones integer;
+begin
+    insert into socisclubs values (ssoci, cclub);
+    select count(*) into homes from socis s, socisclubs sc where s.sexe = 'M' and sc.nsoci = s.nsoci and sc.nclub = cclub;
+    select count(*) into dones from socis s, socisclubs sc where s.sexe = 'F' and sc.nsoci = s.nsoci and sc.nclub = cclub;
+    suma = homes + dones;
+    
+    if (homes > dones) then
+        SELECT texte INTO missatge FROM missatgesexcepcions WHERE num=2; 
+            RAISE EXCEPTION '%',missatge;
+    elsif (suma > 10) then
+        SELECT texte INTO missatge FROM missatgesexcepcions WHERE num=1; 
+            RAISE EXCEPTION '%',missatge;
+    elsif (suma == 6) then
+            insert into clubs_amb_mes_de_5_socis values (cclub);
+    end if; 
+
+    return;
+
+    exception
+        when raise_exception then raise exception '%', SQLERRM;
+        when unique_violation then select texte into missatge from missatgesexcepcions where num=3;
+                    raise exception '%', missatge;
+        when foreign_key_violation then select texte into missatge from missatgesexcepcions where num=4;
+                    raise exception '%', missatge;
+		when others then select texte into missatge from missatgesexcepcions where num=5;
+                    raise exception '%', missatge;
+
+end;
+$$LANGUAGE plpgsql;
