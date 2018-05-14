@@ -1,0 +1,186 @@
+--QÜESTIÓ 1--
+
+CREATE or replace FUNCTION auditoria() RETURNS trigger AS $$
+DECLARE
+BEGIN
+      select usuari into new.usuari from usuari_actual; 
+      RETURN NEW;
+END;
+$$LANGUAGE plpgsql;
+
+CREATE TRIGGER ex172 before INSERT ON treballadors FOR EACH ROW EXECUTE PROCEDURE auditoria();
+
+--QÜESTIÓ 2--
+
+CREATE or replace FUNCTION  inspeccion() RETURNS trigger AS $$
+declare
+missatge varchar(100);
+BEGIN
+      
+	if (old.nempl = '123') then 
+		
+		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 1;
+		RAISE EXCEPTION '%',missatge;
+		return null;
+	
+	elseif (TG_OP = 'DELETE') then return old;	
+	else return new;
+	end if;
+	
+exception
+
+	when raise_exception then raise exception '%', SQLERRM;
+
+END;
+$$LANGUAGE plpgsql;
+
+CREATE TRIGGER saveempleat before delete or update of nempl ON empleats FOR EACH ROW EXECUTE PROCEDURE inspeccion();
+
+--QÜESTIÓ 3--
+
+CREATE or replace FUNCTION  dijous() RETURNS trigger AS $$
+declare
+missatge varchar(50);
+BEGIN
+      
+	if ((select dia from dia) = 'dijous') then 
+		
+		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 1;
+		RAISE EXCEPTION '%',missatge;
+		return null;
+	
+	else return old;
+	end if;
+	
+exception
+
+	when raise_exception then raise exception '%', SQLERRM;
+
+END;
+$$LANGUAGE plpgsql;
+
+CREATE TRIGGER alcarrer before delete ON empleats FOR EACH statement EXECUTE PROCEDURE dijous();
+
+--QÜESTIÓ 4--
+
+create or replace function ere1() returns trigger as $$
+declare
+begin
+	
+	delete from temp;
+	insert into temp(x,y) select SUM(salari),0 from empleats;
+	return null;
+end;
+$$LANGUAGE plpgsql;
+
+
+CREATE or replace FUNCTION  ere2() RETURNS trigger AS $$
+declare
+missatge varchar(50);
+todos integer;
+borrados integer;
+BEGIN
+      
+	update temp set y = y + old.salari;
+	select x,y into todos,borrados from temp;
+	if(borrados > (todos-borrados)) then
+	
+		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 1;
+		RAISE EXCEPTION '%',missatge;
+		return null;
+	
+	else return old;
+	end if;
+	
+exception
+
+	when raise_exception then raise exception '%', SQLERRM;
+
+END;
+$$LANGUAGE plpgsql;
+
+CREATE TRIGGER borrar1 before delete ON empleats FOR EACH statement EXECUTE PROCEDURE ere1();
+
+create trigger borrar2 before delete on empleats for each row execute procedure ere2();
+
+--QÜESTIÓ 5--
+
+CREATE TYPE empl AS
+( nom char(30),
+  sou integer);
+
+CREATE OR REPLACE FUNCTION empl_departament(numdept integer) RETURNS setof empl AS $$
+DECLARE 
+  e empl;
+  missatge varchar(50);
+  quants integer;
+
+BEGIN
+
+  quants = 0;
+  FOR e IN SELECT nom_empl, sou FROM empleats em WHERE em.num_dpt = numdept and em.ciutat_empl = 'SITGES'
+     LOOP
+     quants=quants+1;
+     RETURN NEXT e;
+     END LOOP;
+    
+    if (quants = 0) then 
+    		
+    		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 1;
+		RAISE EXCEPTION '%',missatge;
+	end if;
+
+  RETURN;
+ 
+exception
+
+	when raise_exception then raise exception '%', SQLERRM;
+	
+	when others then SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 2;
+		RAISE EXCEPTION '%',missatge;
+END;
+$$LANGUAGE plpgsql;
+
+--QÜESTIÓ 6--
+
+create type Tvendas as(
+		dnitreb char(8),
+		nomtreb char(30),
+		soutreb real, 
+		plussoutreb real,
+		matricula char(10));
+
+create or replace function llistat_treb (dni1 char(8), dni2 char(8))returns setof Tvendas as $$
+declare
+dato Tvendas;
+missatge varchar(50);
+
+begin
+	for dato in select t.dni, t.nom, t.sou_base, t.plus
+					from treballadors t 
+					where (t.dni between dni1 and dni2) 
+	loop 
+					
+					if ((select count(*) from lloguers_actius ll where dato.dnitreb = ll.dni)  >= 5) then
+					for dato.matricula in (select lla.matricula from lloguers_actius lla where lla.dni = dato.dnitreb)
+					loop			
+						return next dato;
+					end loop;
+					else dato.matricula := null; return next dato;
+					end if;
+    end loop;
+
+	if not found then SELECT texte INTO missatge FROM missatgesexcepcions WHERE num=1; 
+				raise exception '%',missatge;
+
+	end if;
+
+	return;
+
+	exception
+		when raise_exception then raise exception '%', SQLERRM;
+		when others then select texte into missatge from missatgesexcepcions where num=2;
+					raise exception '%', missatge;
+
+end;
+$$LANGUAGE plpgsql;
