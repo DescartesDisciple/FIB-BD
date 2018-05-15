@@ -1,0 +1,120 @@
+--QÜESTIÓ 1--
+
+CREATE OR REPLACE FUNCTION comp_ciudad() returns trigger AS $$
+DECLARE 
+missatge varchar(100);
+begin
+	
+	if (not exists (select * from empleats2 e2 where e2.ciutat2 = new.ciutat1)) then
+	
+		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 1;
+		RAISE EXCEPTION '%',missatge;
+	
+		if (TG_OP = 'INSERT') then return null;
+		else return old;
+		end if;
+	
+	else return new;
+	end if;	
+ 
+exception
+	when raise_exception then raise exception '%', SQLERRM;
+END;
+$$LANGUAGE plpgsql;
+
+create trigger ciudad17 before insert or update of ciutat1 on empleats1 for each row execute procedure comp_ciudad();
+
+--QÜESTIÓ 2--
+
+CREATE OR REPLACE FUNCTION comp_ciudad() returns trigger AS $$
+DECLARE 
+missatge varchar(100);
+begin
+	
+	delete from empleats1 where ciutat1 = old.ciutat2 and not exists (select * from empleats2 where ciutat2 = old.ciutat2);
+	return null;
+	
+END;
+$$LANGUAGE plpgsql;
+
+create trigger ciudad17 after delete or update of ciutat2 on empleats2 for each row execute procedure comp_ciudad();
+
+--QÜESTIÓ 3--
+
+CREATE OR REPLACE FUNCTION assignar_individual(nom char(10), club char(10)) returns void AS $$
+DECLARE 
+missatge varchar(50);
+homes integer;
+dones integer;
+total integer;
+begin
+	
+	insert into socisclubs values (nom, club);
+	
+	select count(*) into homes from socisclubs sc, socis s where sc.nclub = club and s.sexe = 'M' and sc.nsoci = s.nsoci;
+	select count(*) into dones from socisclubs sc, socis s where sc.nclub = club and s.sexe = 'F' and sc.nsoci = s.nsoci;
+	
+	total = homes + dones;
+	
+	if (total = 6) then insert into clubs_amb_mes_de_5_socis values (club);
+	elseif (total > 10) then 
+	
+		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 1;
+		RAISE EXCEPTION '%',missatge;
+	elseif (homes > dones) then 
+		
+		SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 2;
+		RAISE EXCEPTION '%',missatge;
+	end if;
+	
+return;
+
+exception
+	
+	when raise_exception then raise exception '%', SQLERRM;
+	
+	when unique_violation then SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 3;
+		RAISE EXCEPTION '%',missatge;
+	
+	when foreign_key_violation then SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 4;
+		RAISE EXCEPTION '%',missatge;
+	
+	when others then SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 5;
+		RAISE EXCEPTION '%',missatge;
+	
+END;
+$$LANGUAGE plpgsql;
+
+--QÜESTIÓ 4--
+
+CREATE OR REPLACE FUNCTION eliminar_dept(numdept integer) RETURNS void AS $$
+DECLARE 
+   missatge varchar(50);
+ 
+BEGIN
+
+     
+	if (not exists (select * from empleats where num_dpt = numdept)) then 
+	
+		DELETE FROM departaments WHERE num_dpt = numdept;
+
+     	IF NOT FOUND THEN
+	  	 SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 2; 
+           RAISE EXCEPTION '%',missatge;
+     	END IF;
+     else 
+     
+     	SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 1; 
+          RAISE EXCEPTION '%',missatge;
+
+      end if;
+     
+EXCEPTION
+   WHEN raise_exception THEN
+           RAISE EXCEPTION '%',SQLERRM;
+   WHEN OTHERS THEN
+           SELECT texte INTO missatge FROM missatgesExcepcions WHERE num = 3; 
+           RAISE EXCEPTION '%',missatge;
+
+END;
+$$LANGUAGE plpgsql;
